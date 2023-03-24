@@ -1,0 +1,311 @@
+{
+    "images": [
+      {
+        "src":"https://chandra.harvard.edu/photo/2021/v404cyg/v404cyg.jpg",
+        "title":"V404 Cygni",
+        "description":"A binary system including a black hole about 7,800 light years from Earth.",
+        "url":"https://chandra.harvard.edu/photo/2021/v404cyg",
+        "id":"1",
+        "layers":[
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/v404cyg/v404cyg_xray.jpg",
+            "id":"1_xray",
+            "layer":"xray"
+          },
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/v404cyg/v404cyg_optical_ir.jpg",
+            "id":"1_ir",
+            "layer":"ir"
+          },
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/v404cyg/v404cyg_inset.jpg",
+            "id":"1_inset",
+            "layer":"inset"
+          },
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/v404cyg/v404cyg_rings.jpg",
+            "id":"1_rings",
+            "layer":"rings"
+          },
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/v404cyg/v404cyg_illus.jpg",
+            "id":"1_illus",
+            "layer":"illus"
+          }
+        ],
+        "soundEffects": {
+            "Default": {
+              "fullInstruments": true,
+              "pitchShift" : {
+                  "on" : false,
+                  "pitch" : 1
+              },
+              "distort" : {
+                  "on" : false,
+                  "degree" : 0.8
+              },
+              "tremolo" : {
+                  "on" : false,
+                  "frequency": 6,
+                  "depth": 0.9
+              },
+              "reverb" : {
+                  "on" : false,
+                  "params" : {
+                  "decay": 0.7,
+                  "wet" : 0.8
+                  }
+              },
+              "haptic": {
+                "xray" : [100,100,100],
+                "opt" : [200,100,200],
+                "optical" : [200,100,200],
+                "ir" : [300,100,300],
+                "radio" : [400,100,400],
+                "default": [200,100,200]
+              }
+          }, 
+            "Distortion-on-edge" : {
+              "fullInstruments": true,
+              "pitchShift" : {
+                  "on" : false,
+                  "pitch" : 1
+              },
+              "distort" : {
+                  "on" : true,
+                  "degree" : 0.8
+              },
+              "tremolo" : {
+                  "on" : false,
+                  "frequency": 6,
+                  "depth": 0.9
+              },
+              "reverb" : {
+                  "on" : false,
+                  "params" : {
+                  "decay": 0.7,
+                  "wet" : 0.8
+                  }
+              },
+              "haptic": {
+                "xray" : [100,100,100],
+                "opt" : [200,100,200],
+                "optical" : [200,100,200],
+                "ir" : [300,100,300],
+                "radio" : [400,100,400],
+                "default": [200,100,200]
+              }
+          }
+        }
+      },
+      {
+        "src":"https://chandra.harvard.edu/photo/2021/a1775/a1775.jpg",
+        "title":"Abell 1775",
+        "description":"A galaxy cluster located about 960 million light years from Earth.",
+        "url":"https://chandra.harvard.edu/photo/2021/a1775",
+        "id":"2",
+        "layers":[
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/a1775/a1775_xray.jpg",
+            "id":"2_xray",
+            "layer":"xray"
+          },
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/a1775/a1775_optical_ir.jpg",
+            "id":"2_ir",
+            "layer":"ir"
+          },
+          {
+            "src":"https://chandra.harvard.edu/photo/2021/a1775/a1775_radio.jpg",
+            "id":"2_radio",
+            "layer":"radio"
+          }
+        ],
+        "soundEffects": {
+              "Default": {
+                "fullInstruments": true,
+                "pitchShift" : {
+                    "on" : false,
+                    "pitch" : 1
+                },
+                "distort" : {
+                    "on" : false,
+                    "degree" : 0.8
+                },
+                "tremolo" : {
+                    "on" : false,
+                    "frequency": 6,
+                    "depth": 0.9
+                },
+                "reverb" : {
+                    "on" : false,
+                    "params" : {
+                    "decay": 0.7,
+                    "wet" : 0.8
+                    }
+                },
+                "haptic": {
+                  "xray" : [],
+                  "opt" : [],
+                  "optical" : [],
+                  "ir" : [300,100,300],
+                  "radio" : [],
+                  "default": [200,100,200]
+                }
+            }, 
+            "Only-harmonium" : {
+              "fullInstruments": false,
+              "pitchShift" : {
+                  "on" : false,
+                  "pitch" : 1
+              },
+              "distort" : {
+                  "on" : false,
+                  "degree" : 0.8
+              },
+              "tremolo" : {
+                  "on" : false,
+                  "frequency": 6,
+                  "depth": 0.9
+              },
+              "reverb" : {
+                  "on" : false,
+                  "params" : {
+                  "decay": 0.7,
+                  "wet" : 0.8
+                  }
+              },
+              "haptic": {
+                "xray" : [100,100,100],
+                "opt" : [200,100,200],
+                "optical" : [200,100,200],
+                "ir" : [300,100,300],
+                "radio" : [400,100,400],
+                "default": [200,100,200]
+              }
+            }
+          }
+        },
+        {
+          "src":"https://stellasonos-files.vercel.app/images/sample-graph.jpg",
+          "title":"Sample Graph",
+          "description":"Sample line graph",
+          "url":"https://stellasonos-files.vercel.app/images/sample-graph.jpg",
+          "id":"sample-graph",
+          "layers":[],
+          "soundEffects": {
+            "Default": {
+              "fullInstruments": true,
+              "pitchShift" : {
+                  "on" : false,
+                  "pitch" : 1
+              },
+              "distort" : {
+                  "on" : false,
+                  "degree" : 0.8
+              },
+              "tremolo" : {
+                  "on" : false,
+                  "frequency": 6,
+                  "depth": 0.9
+              },
+              "reverb" : {
+                  "on" : false,
+                  "params" : {
+                  "decay": 0.7,
+                  "wet" : 0.8
+                  }
+              },
+              "haptic": {
+                "xray" : [100,100,100],
+                "opt" : [200,100,200],
+                "optical" : [200,100,200],
+                "ir" : [300,100,300],
+                "radio" : [400,100,400],
+                "default": [200,100,200]
+              }
+            }
+          }
+        }, {
+          "src":"https://stellasonos-files.vercel.app/images/sample-image-ellipse.jpg",
+          "title":"Sample Image Ellipse",
+          "description":"Sample ellipse",
+          "url":"https://stellasonos-files.vercel.app/images/sample-image-ellipse.jpg",
+          "id":"sample-image-ellipse",
+          "layers":[],
+          "soundEffects": {
+            "Default": {
+              "fullInstruments": true,
+              "pitchShift" : {
+                  "on" : false,
+                  "pitch" : 1
+              },
+              "distort" : {
+                  "on" : false,
+                  "degree" : 0.8
+              },
+              "tremolo" : {
+                  "on" : false,
+                  "frequency": 6,
+                  "depth": 0.9
+              },
+              "reverb" : {
+                  "on" : false,
+                  "params" : {
+                  "decay": 0.7,
+                  "wet" : 0.8
+                  }
+              },
+              "haptic": {
+                "xray" : [100,100,100],
+                "opt" : [200,100,200],
+                "optical" : [200,100,200],
+                "ir" : [300,100,300],
+                "radio" : [400,100,400],
+                "default": [200,100,200]
+              }
+            }
+          }
+        }, {
+          "src":"https://stellasonos-files.vercel.app/images/sample-image-squares.jpg",
+          "title":"Sample Image Squares",
+          "description":"Sample squares",
+          "url":"https://stellasonos-files.vercel.app/images/sample-image-squares.jpg",
+          "id":"sample-image-squares",
+          "layers":[],
+          "soundEffects": {
+            "Default": {
+              "fullInstruments": true,
+              "pitchShift" : {
+                  "on" : false,
+                  "pitch" : 1
+              },
+              "distort" : {
+                  "on" : false,
+                  "degree" : 0.8
+              },
+              "tremolo" : {
+                  "on" : false,
+                  "frequency": 6,
+                  "depth": 0.9
+              },
+              "reverb" : {
+                  "on" : false,
+                  "params" : {
+                  "decay": 0.7,
+                  "wet" : 0.8
+                  }
+              },
+              "haptic": {
+                "xray" : [100,100,100],
+                "opt" : [200,100,200],
+                "optical" : [200,100,200],
+                "ir" : [300,100,300],
+                "radio" : [400,100,400],
+                "default": [200,100,200]
+              }
+            }
+          }
+        }
+    ]
+}

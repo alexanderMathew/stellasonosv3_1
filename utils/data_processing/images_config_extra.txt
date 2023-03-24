@@ -1,0 +1,68 @@
+Scrapeboard for things that are taken out of the images.json or images_test.json files.
+JSON files don't support commenting, so here is everything that needs to be temporarily taken
+out from those json files. 
+
+"No-Haptic" : {
+    "fullInstruments": true,
+    "pitchShift" : {
+        "on" : false,
+        "pitch" : 1
+    },
+    "distort" : {
+        "on" : false,
+        "degree" : 0.8
+    },
+    "tremolo" : {
+        "on" : false,
+        "frequency": 6,
+        "depth": 0.9
+    },
+    "reverb" : {
+        "on" : false,
+        "params" : {
+        "decay": 0.7,
+        "wet" : 0.8
+        }
+    },
+    "haptic": {
+    "xray" : [],
+    "opt" : [],
+    "optical" : [],
+    "ir" : [],
+    "radio" : [],
+    "default": []
+    }
+}
+
+
+"Pitch-shift-on-edge" : {
+    "fullInstruments": true,
+    "pitchShift" : {
+        "on" : true,
+        "pitch" : 1
+    },
+    "distort" : {
+        "on" : false,
+        "degree" : 0.8
+    },
+    "tremolo" : {
+        "on" : false,
+        "frequency": 6,
+        "depth": 0.9
+    },
+    "reverb" : {
+        "on" : false,
+        "params" : {
+        "decay": 0.7,
+        "wet" : 0.8
+        }
+    },
+    "haptic": {
+        "xray" : [100,100,100],
+        "opt" : [200,100,200],
+        "optical" : [200,100,200],
+        "ir" : [300,100,300],
+        "radio" : [400,100,400],
+        "default": [200,100,200]
+    }
+}

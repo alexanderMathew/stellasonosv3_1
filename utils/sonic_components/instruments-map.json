@@ -1,0 +1,22 @@
+{
+  "bassElectric": "bass-electric",
+  "bassoon": "bassoon",
+  "cello": "cello",
+  "clarinet": "clarinet",
+  "contrabass": "contrabass",
+  "flute": "flute",
+  "frenchHorn": "french-horn",
+  "guitarAcoustic": "guitar-acoustic",
+  "guitarElectric": "guitar-electric",
+  "guitarNylon": "guitar-nylon",
+  "harmonium": "harmonium",
+  "harp": "harp",
+  "organ": "organ",
+  "piano": "piano",
+  "saxophone": "saxophone",
+  "trombone": "trombone",
+  "trumpet": "trumpet",
+  "tuba": "tuba",
+  "violin": "violin",
+  "xylophone": "xylophone"
+}
