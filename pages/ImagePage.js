@@ -13,7 +13,7 @@ import {
 } from "react-native";
 
 //import { AntDesign } from "@expo/vector-icons";
-
+import SoundImage from "../utils/visual_components/SoundImage";
 
 export default function ImagePage({ route, navigation }) {
   const { image, name } = route.params;
@@ -66,32 +66,6 @@ export default function ImagePage({ route, navigation }) {
     })
   ).current;
 
-  // update current x and y values in the state for later
-  pan.x.addListener(({ value }) => {
-    setCurrentX(value);
-  });
-  pan.y.addListener(({ value }) => {
-    setCurrentY(value);
-  });
-  const handleX = (delta) => {
-    var newX =
-      currentX + delta > xMax
-        ? xMax
-        : currentX + delta < -xMax
-        ? -xMax
-        : currentX + delta;
-    pan.setValue({ x: newX, y: currentY });
-  };
-  const handleY = (delta) => {
-    var newY =
-      currentY + delta > yMax
-        ? yMax
-        : currentY + delta < -yMax
-        ? -yMax
-        : currentY + delta;
-    pan.setValue({ x: currentX, y: newY });
-  };
-
   const [modalVisible, setModalVisible] = useState(false);
   return (
     <View style={styles.container}>
@@ -119,48 +93,25 @@ export default function ImagePage({ route, navigation }) {
           </View>
         </View>
       </Modal>
-      <View style={styles.container}>
-        {/* Preventing the dot from going out of bounds       */}
-        <Animated.View
-          style={{
-            transform: [
-              {
-                translateX: pan.x.interpolate({
-                  inputRange: [-xMax, xMax],
-                  outputRange: [-xMax, xMax],
-                  extrapolate: "clamp",
-                }),
-              },
-              {
-                translateY: pan.y.interpolate({
-                  inputRange: [-yMax, yMax],
-                  outputRange: [-yMax, yMax],
-                  extrapolate: "clamp",
-                }),
-              },
-            ],
-          }}
-          {...panResponder.panHandlers}
-        >
-          <View style={styles.circle} />
-        </Animated.View>
-        <View
-          style={styles.imageContainer}
-          onStartShouldSetResponder={() => true}
-          onResponderMove={(event) => {            
-            pan.setValue({
-              x: event.nativeEvent.locationX - xMax - 20,
-              y: event.nativeEvent.locationY - yMax - 20,
-            });
-            console.log(event.nativeEvent.pageX, event.nativeEvent.pageY, event.nativeEvent.locationX, event.nativeEvent.locationY, yMax, xMax,  );
-          }}
-        >
-          <ImageBackground
-            style={styles.tinyLogo}
-            source={{ uri: image.src }}
-          ></ImageBackground>
-        </View>
-      </View>
+
+      {/* <Canvas ref={this.handleCanvas} /> */}
+      {/* <Canvas style={{ width: '10%', height: '10%', backgroundColor: 'black' }} ref={ref} /> */}
+      {image.id
+        ? (<SoundImage
+          src={image.src}
+          title={image.title}
+          description={image.description}
+          id={image.id}
+          layers={image.layers}
+          soundEffects={image.soundEffects}
+          pan={pan}
+          currentX={currentX}
+          currentY={currentY}
+          setCurrentX={setCurrentX}
+          setCurrentY={setCurrentY}
+          panResponder={panResponder}
+        />)
+        : null}
 
       {/* <View style={styles.toolBar}>
         <AntDesign

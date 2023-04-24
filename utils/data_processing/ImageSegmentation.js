@@ -1,6 +1,6 @@
 import { Constants } from "./Constants";
 import OpenCVLib from "./OpenCVLib";
-import ls from "local-storage";
+import { RNCv, Mat, MatVector, CvType, Imgproc, CvSize, CvPoint, CvScalar, ColorConv } from 'react-native-opencv3';
 
 /**
  * This class models a image segmentation tool.
@@ -29,39 +29,51 @@ class ImageSegmentation {
     canvas, imageType, bgrDataArray, showSegmentation=false, displayId="",
     renderedWidth, renderedHeight) => {
 
-    let src = window.cv.imread(canvas); //The decoded images will have the channels stored in B G R order.
+    let src = RNCv.invokeMethod("imread", {"p1": canvas});
+    // let src = window.cv.imread(canvas); //The decoded images will have the channels stored in B G R order.
     
     // Use the passed in rendered dimensions to resize the image
     // so that the image that gets segmented later is of the same size
     // as the sound image that is currently rendered on the page. 
-    const renderedSize = new window.cv.Size(renderedWidth, renderedHeight);
-    window.cv.resize(src, src, renderedSize, 0, 0, window.cv.INTER_AREA);
+    const renderSize = new CvSize(renderedWidth, renderedHeight);
+    // const renderedSize = new window.cv.Size(renderedWidth, renderedHeight);
+
+    RNCv.invokeMethod('resize', {"p1": src, "p2": src, "p3": renderedSize, "p4": 0, "p5": 0, "p6": Imgproc.INTER_AREA});
+    // window.cv.resize(src, src, renderedSize, 0, 0, window.cv.INTER_AREA);
     console.assert(src.rows === renderedHeight);
     console.assert(src.cols === renderedWidth);
 
-    let dst = window.cv.Mat.zeros(src.rows, src.cols, window.cv.CV_8UC3);
+    let dst = Mat.zeros(src.rows, src.cols, CvType.CV_8UC3);
+    // let dst = window.cv.Mat.zeros(src.rows, src.cols, window.cv.CV_8UC3);
 
     this.state.imageRenderedWidth = src.rows; //checked
     this.state.imageRenderedHeight = src.cols; //checked
     
     // Apply thresholding on src image to differentiate fore vs. background
-    window.cv.cvtColor(src, src, window.cv.COLOR_RGBA2GRAY, 0);
+    RNCv,invokeMethod('cvtColor', {"p1": src, "p2": src, "p3": ColorConv.COLOR_RGBA2GRAY, "p4": 0});
+    // window.cv.cvtColor(src, src, window.cv.COLOR_RGBA2GRAY, 0);
     let threshold = Constants.SEGMENTATION_THRESHOLD_DICT[imageType] || 20;
-    window.cv.threshold(src, src, threshold, 255, window.cv.THRESH_BINARY); 
+    RNCv.invokeMethod('threshold', {"p1": src, "p2": src, "p3": threshold, "p4": 255, "p5": Imgproc.THRESH_BINARY});
+    // window.cv.threshold(src, src, threshold, 255, window.cv.THRESH_BINARY); 
     // could try adding window.cv.THRESH_OTSU after thresh_binary too, 
     // but doesn't work well with thin objects (eg. lines)
 
-    let contours = new window.cv.MatVector();
-    let hierarchy = new window.cv.Mat();
+    let contours = new MatVector();
+    let hierarchy = new Mat();
+    // let contours = new window.cv.MatVector();
+    // let hierarchy = new window.cv.Mat();
 
-    window.cv.findContours(src, contours, hierarchy, window.cv.RETR_CCOMP, window.cv.CHAIN_APPROX_SIMPLE);
+    RNCv.invokeMethod('findContours', {"p1": src, "p2": contours, "p3": hierarchy, "p4": Imgproc.RETR_CCOMP, "p5": Imgproc.CHAIN_APPROX_SIMPLE});
+    // window.cv.findContours(src, contours, hierarchy, window.cv.RETR_CCOMP, window.cv.CHAIN_APPROX_SIMPLE);
     // draw contours with random Scalar
     for (let i = 0; i < contours.size(); ++i) {
-        let color = new window.cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
-                                  Math.round(Math.random() * 255));
+        let color = new CvScalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255), Math.round(Math.random() * 255));
+        // let color = new window.cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+        //                           Math.round(Math.random() * 255));
         // The "-1" denotes the thickness of contour lines, 
         // and negative numbers make it so that the interiors are drawn.
-        window.cv.drawContours(dst, contours, i, color, -1, window.cv.LINE_8, hierarchy, 100);
+        RNCv.invokeMethod('drawContours', {"p1": dst, "p2": contours, "p3": i, "p4": color, "p5": -1, "p6": Imgproc.LINE_8, "p7": hierarchy, "p8": 100});
+        // window.cv.drawContours(dst, contours, i, color, -1, window.cv.LINE_8, hierarchy, 100);
     }
 
     const objectResults = this.findObjects(bgrDataArray, dst.data);
@@ -75,6 +87,11 @@ class ImageSegmentation {
     src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
 
     this.state.loaded = true; 
+
+    console.log("#### objectFeatureMap ####")
+    console.log(objectFeatureMap);
+    console.log("#### objectColorIdArray ####")
+    console.log(objectColorIdArray);
     
     return [objectFeatureMap, objectColorIdArray];
   }
