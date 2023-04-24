@@ -11,12 +11,13 @@ import {
   Pressable,
 } from "react-native";
 
+
+
 import { Dimensions } from "react-native";
 //import { AntDesign } from "@expo/vector-icons";
-import {Audio} from "expo-av";
 import { Button } from "@rneui/base";
 import {Player} from '@react-native-community/audio-toolkit';
-import SoundPlayer from 'react-native-sound-player'
+//import SoundPlayer from 'react-native-sound-player'
 
 export default function SoundPage({ route, navigation }) {
   const { image, name } = route.params;
@@ -25,67 +26,82 @@ export default function SoundPage({ route, navigation }) {
   const [currentX, setCurrentX] = useState(0);
   const [currentY, setCurrentY] = useState(0);
   const [sound, setSound] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const xPadding = 45;
 
-  // const audioPlayer = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3");
-  // audioPlayer.looping = true;
-  
 
-
-
-
-
-  function getPosition(){
-    /*
-    // write function to get current position and detect object
-    */
-  }
-
-  async function playSoundRNSP() {
-    try {
-
-      SoundPlayer.playUrl("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3")
-  } catch (e) {
-      console.log(`cannot play the sound file`, e)
-  }
+  function delay(milliseconds){
+    return new Promise(resolve => {
+        setTimeout(resolve, milliseconds);
+    });
 }
+const blankSound = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3", {autoDestroy: false});
+blankSound.volume = 0.0
+blankSound.play()
+
+
+const newPlayer = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3", {autoDestroy: false});
+newPlayer.looping = true
+
+
+
+const player2 = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "clarinet" + "/" + "D3" + ".mp3", {autoDestroy: false});
+player2.looping = true
+
 async function playSoundToolkit() {
+
   try {
 
-    SoundPlayer.playUrl("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3")
-} catch (e) {
+    // Seems to work best so far
+    newPlayer.play()
+    // await delay(3500)
+    // player2.play()
+
+   }catch (e) {
     console.log(`cannot play the sound file`, e)
+  }
 }
+async function playSecondSound() {
+
+  try {
+
+    // Seems to work best so far
+    player2.play()
+    // await delay(3500)
+    // player2.play()
+
+   }catch (e) {
+    console.log(`cannot play the sound file`, e)
+  }
 }
 
+async function changeSoundToolkit() {
+
+  try {
+    // Seems to work best so far
+    newPlayer.stop()
+    player2.stop()
+    // await delay(3500)
+    // player2.play()
+
+   }catch (e) {
+    console.log(`cannot play the sound file`, e)
+  }
+}
+
+async function stopSoundToolkit() {
+
+  try {
+
+    // Seems to work best so far
+    newPlayer.stop()
+    // testPlayer.stop()
+    player2.stop()
+   }catch (e) {
+    console.log(`could not pause sound`, e)
+  }
+}
   
-
-//   async function playSound() {
-
-   
-//     const sound = new Audio.Sound();
-//     await sound.loadAsync(
-//    {uri: "https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3"}
-//   )
-//    await sound.playAsync();
-//    await sound.setIsLoopingAsync(true);
-  
-// }
-
-
-// function startPlayer() {
-
-//   audioPlayer.play();
-
-//  }
-
-//  startPlayer()
-
-
-
-
   // calculating actual width and height of touch area
 
   const xMax = Dimensions.get("window").width / 2 - xPadding;
@@ -114,7 +130,7 @@ async function playSoundToolkit() {
         });
       },
       onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
-        
+      
         useNativeDriver: false,
 
         onPanResponderRelease: (event, gestureState) => {
@@ -123,7 +139,7 @@ async function playSoundToolkit() {
 
         },
 
-  
+
       }),
 
      
@@ -232,7 +248,7 @@ async function playSoundToolkit() {
             Where the actual motion is taking place
 
             */
-       
+           //playSoundToolkit()
 
             
         }}
@@ -246,11 +262,9 @@ async function playSoundToolkit() {
         </View>
       </View>
 
-      <View>
-        <Button onPress={playSound}></Button>
-      </View>
-      {/* <View style={styles.toolBar}>
-        <AntDesign
+
+      {<View style={styles.toolBar}>
+        {/* <AntDesign
           onPress={() => handleX(-10)}
           name="leftcircleo"
           size={30}
@@ -279,13 +293,24 @@ async function playSoundToolkit() {
           name="infocirlceo"
           size={30}
           color="black"
-        />
+        /> */}
+      {/* <View>
+        <Button onPress={playSoundToolkit}>Play Sound</Button>
+      </View>
+      <View>
+        <Button onPress={stopSoundToolkit}>Stop Sound</Button>
+      </View> */}
+      <Button onPress={playSoundToolkit} >Play Sound</Button>
+      <Button onPress={playSecondSound} >Play Sound 2</Button>          
+      <Button onPress={stopSoundToolkit} >Stop Sound</Button>
+
 
       
-      </View> */}
+      </View> }
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
