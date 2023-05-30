@@ -1,6 +1,7 @@
 import { Constants } from "./Constants";
 import OpenCVLib from "./OpenCVLib";
-import { RNCv, Mat, MatVector, CvType, Imgproc, CvSize, CvPoint, CvScalar, ColorConv } from 'react-native-opencv3';
+import OpenCV from '../../src/NativeModules/OpenCV';
+// import { RNCv, Mat, MatVector, CvType, Imgproc, CvSize, CvPoint, CvScalar, ColorConv } from 'react-native-opencv3';
 
 /**
  * This class models a image segmentation tool.

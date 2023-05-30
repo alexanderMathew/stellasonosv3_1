@@ -2,6 +2,8 @@ package com.stellasonosv3_1;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
+
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -9,9 +11,11 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.soloader.SoLoader;
+import com.reactlibrary.RNOpenCvLibraryPackage;
 import com.stellasonosv3_1.newarchitecture.MainApplicationReactNativeHost;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import org.opencv.android.OpenCVLoader;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -26,6 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
+          packages.add(new RNOpenCvLibraryPackage());
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
           return packages;
@@ -56,6 +61,9 @@ public class MainApplication extends Application implements ReactApplication {
     ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    if (!OpenCVLoader.initDebug()) {
+      Log.d("OpenCv", "Error while init"); // AND THIS
+    }
   }
 
   /**

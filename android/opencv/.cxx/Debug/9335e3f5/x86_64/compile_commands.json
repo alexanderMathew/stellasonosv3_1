@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/.cxx/Debug/9335e3f5/x86_64",
+  "command": "/Users/grant/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=x86_64-none-linux-android21 --gcc-toolchain=/Users/grant/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/grant/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot    -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC   -o CMakeFiles/opencv_jni_shared.dir/dummy.cpp.o -c /Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/libcxx_helper/dummy.cpp",
+  "file": "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/libcxx_helper/dummy.cpp"
+}
+]

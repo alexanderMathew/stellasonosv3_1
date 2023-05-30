@@ -1,5 +1,3 @@
-import { RNCv, Mat, CvType, Imgproc, CvSize, CvPoint, CvScalar, ColorConv } from 'react-native-opencv3';
-import Canvas from 'react-native-canvas';
 import { Constants } from "../data_processing/Constants";
 import ImageSegmentation from "../data_processing/ImageSegmentation";
 import { Dimensions, Image } from "react-native";
@@ -11,7 +9,7 @@ import { Dimensions, Image } from "react-native";
 export default class SoundImageLayer {
   constructor(layerName, soundEffects) {
     this.resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
-    this.downloadAssetSource = require('react-native-opencv3/downloadAssetSource');
+    // this.downloadAssetSource = require('react-native-opencv3/downloadAssetSource');
     this.layerDisplayname = layerName;
     this.layerName = layerName;
     this.soundEffectsInfo = soundEffects;
@@ -27,7 +25,7 @@ export default class SoundImageLayer {
     if (image != null) {
       this.image = image
     } else {
-      this.image = {}; // DOES THIS WORK?!
+      this.image = {};
       this.image.src = src;
     }
     this.image.crossOrigin = "anonymous";
@@ -61,44 +59,52 @@ export default class SoundImageLayer {
     // console.log(imagesrc);
     // const sourceuri = Image.resolveAssetSource(this.image.src).uri;
 
-    const sourceFile = await this.downloadAssetSource(this.image.src);
-    const srcMat = await RNCv.imageToMat(sourceFile);
-    const bgrDataArray = await RNCv.getMatData(srcMat, 0, 0);
-    console.log("bgrDataArray length: " + bgrDataArray.length);
-    
+    // const sourceFile = await this.downloadAssetSource(this.image.src);
+    // const srcMat = await RNCv.imageToMat(sourceFile);
+    // let srcMat = await new Mat(864, 864, CvType.CV_8UC4).init();
+    // const srcMat = await new Mat().init()
+    // console.log(srcMat);
+    // const bgrDataArray = await RNCv.getMatData(srcMat, 0, 0);
+    // console.log("bgrDataArray length: " + bgrDataArray.length);
+
+    // MISSION:
+    // 1. Figure out what *Mat* is and how to use it to get the image data (bgrDataArray)
+    // 2. If all else fails, find another way to get bgrDataArray from the image
+    // 3. Does startImageSeg actually need bgrDataArray?
+
     // This data array is used in segmentation, so whichever dimension is used here 
     // needs to match the image that is used for segmentation
-    let [objectFeatureMap, objectColorIdArray] = 
-      this.startImageSeg(bgrDataArray, this.imageRenderedWidth, this.imageRenderedHeight);
-    this.objectFeatureMap = objectFeatureMap
-    console.assert(objectColorIdArray.length * 4 === bgrDataArray.length);
-    console.assert(objectColorIdArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
+    // let [objectFeatureMap, objectColorIdArray] = 
+    //   this.startImageSeg(bgrDataArray, this.imageRenderedWidth, this.imageRenderedHeight);
+    // this.objectFeatureMap = objectFeatureMap
+    // console.assert(objectColorIdArray.length * 4 === bgrDataArray.length);
+    // console.assert(objectColorIdArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
 
     // For each pixel, create an image feature object.
     // This object contains the rgba values of the original pixel,
     // as well as image segmentation info such as object id number
-    // and the average pixel value of this object.
-    let objectArrayIndex = 0;
-    for (let i = 0; i < bgrDataArray.length; i += 4) {
-      let currentPixelFeature = {};
-      const currentObjectId = objectColorIdArray[objectArrayIndex];
-      currentPixelFeature[Constants.NAME_BLUE] = bgrDataArray[i];
-      currentPixelFeature[Constants.NAME_GREEN] = bgrDataArray[i + 1];
-      currentPixelFeature[Constants.NAME_RED] = bgrDataArray[i + 2];
-      currentPixelFeature[Constants.NAME_ALPHA] = bgrDataArray[i + 3];
-      currentPixelFeature[Constants.NAME_OBJECT_ID] = currentObjectId;
-      objectArrayIndex += 1;
-      this.imageFeatureArray.push(currentPixelFeature);
-    }
-    console.assert(objectArrayIndex === objectColorIdArray.length);
-    console.assert(this.imageFeatureArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
+    // // and the average pixel value of this object.
+    // let objectArrayIndex = 0;
+    // for (let i = 0; i < bgrDataArray.length; i += 4) {
+    //   let currentPixelFeature = {};
+    //   const currentObjectId = objectColorIdArray[objectArrayIndex];
+    //   currentPixelFeature[Constants.NAME_BLUE] = bgrDataArray[i];
+    //   currentPixelFeature[Constants.NAME_GREEN] = bgrDataArray[i + 1];
+    //   currentPixelFeature[Constants.NAME_RED] = bgrDataArray[i + 2];
+    //   currentPixelFeature[Constants.NAME_ALPHA] = bgrDataArray[i + 3];
+    //   currentPixelFeature[Constants.NAME_OBJECT_ID] = currentObjectId;
+    //   objectArrayIndex += 1;
+    //   this.imageFeatureArray.push(currentPixelFeature);
+    // }
+    // console.assert(objectArrayIndex === objectColorIdArray.length);
+    // console.assert(this.imageFeatureArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
 
     // When the main layer gets loaded, change the overlay button's text,
     // and let screen reader read the initial instruction.
-    if (this.isCompositeLayer()) {
+    // if (this.isCompositeLayer()) {
       // document.getElementById("start-audio-context-button").innerHTML = "Start Exploring";
       // document.getElementById("start-audio-instruction").hidden = false;
-    }
+    // }
   };
 
   /*
@@ -115,11 +121,11 @@ export default class SoundImageLayer {
     // if (this.displayRef && this.displayResults && ! this.isCompositeLayer()) {
     //   this.createDisplayCanvas();
     // }
-    console.log("Begin segmentation")
-    const imageSegmentor = new ImageSegmentation();
-    return imageSegmentor.segment(
-      this.canvas, this.layerName, bgrDataArray, this.displayResults, this.layerDisplayname,
-      soundImageRenderedWidth, soundImageRenderedHeight);
+    // console.log("Begin segmentation")
+    // const imageSegmentor = new ImageSegmentation();
+    // return imageSegmentor.segment(
+    //   this.canvas, this.layerName, bgrDataArray, this.displayResults, this.layerDisplayname,
+    //   soundImageRenderedWidth, soundImageRenderedHeight);
   };
 
   /* 

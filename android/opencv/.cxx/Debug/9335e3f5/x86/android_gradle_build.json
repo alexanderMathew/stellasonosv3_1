@@ -1,0 +1,39 @@
+{
+  "stringTable": {},
+  "buildFiles": [
+    "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/libcxx_helper/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/grant/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+      "-C",
+      "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/.cxx/Debug/9335e3f5/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/grant/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+    "-C",
+    "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/.cxx/Debug/9335e3f5/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "opencv_jni_shared-Debug-x86": {
+      "buildCommandComponents": [
+        "/Users/grant/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+        "-C",
+        "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/.cxx/Debug/9335e3f5/x86",
+        "opencv_jni_shared"
+      ],
+      "buildType": "debug",
+      "abi": "x86",
+      "artifactName": "opencv_jni_shared",
+      "output": "/Users/grant/Desktop/Stellasonos/Repos/stellasonosv3_1/android/opencv/.cxx/Debug/9335e3f5/x86/libopencv_jni_shared.a"
+    }
+  },
+  "toolchains": {},
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}
