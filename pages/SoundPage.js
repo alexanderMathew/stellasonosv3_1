@@ -1,14 +1,14 @@
 import React, { useRef, useState } from "react";
 import {
-  Animated,
-  View,
-  StyleSheet,
-  PanResponder,
-  Modal,
-  Alert,
-  Text,
-  ImageBackground,
-  Pressable,
+    Animated,
+    View,
+    StyleSheet,
+    PanResponder,
+    Modal,
+    Alert,
+    Text,
+    ImageBackground,
+    Pressable,
 } from "react-native";
 
 
@@ -20,247 +20,267 @@ import {Player} from '@react-native-community/audio-toolkit';
 //import SoundPlayer from 'react-native-sound-player'
 
 export default function SoundPage({ route, navigation }) {
-  const { image, name } = route.params;
+    const { image, name } = route.params;
 
-  const pan = useRef(new Animated.ValueXY()).current;
-  const [currentX, setCurrentX] = useState(0);
-  const [currentY, setCurrentY] = useState(0);
-  const [sound, setSound] = useState(null);
+    const pan = useRef(new Animated.ValueXY()).current;
+    const [currentX, setCurrentX] = useState(0);
+    const [currentY, setCurrentY] = useState(0);
+    const [sound, setSound] = useState(null);
 
-  const xPadding = 45;
-
-
-  function delay(milliseconds){
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    });
-}
-const blankSound = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3", {autoDestroy: false});
-blankSound.volume = 0.0
-blankSound.play()
+    const xPadding = 45;
 
 
-const newPlayer = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "bassoon" + "/" + "G1" + ".mp3", {autoDestroy: false});
-newPlayer.looping = true
+    function delay(milliseconds){
+	return new Promise(resolve => {
+            setTimeout(resolve, milliseconds);
+	});
+    }
 
+    // The looping is inadequate because it leaves an air gap, so we
+    // set looping to false and do our own looping.
+    const playerOne =
+	  new Player("https://stellasonos-files.vercel.app/samples/bassoon/G1.mp3",
+		     {autoDestroy: false,
+		      mixWithOthers: true});
+    playerOne.looping = false;
+    // Get the player ready to play.
+    playerOne.prepare();
 
+    // Same as above for the second player.
+    const playerTwo =
+	  new Player("https://stellasonos-files.vercel.app/samples/bassoon/G1.mp3",
+		     {autoDestroy: false,
+		      mixWithOthers: true});
+    playerTwo.looping = false;
+    playerTwo.prepare();
 
-const player2 = new Player("https://stellasonos-files.vercel.app/" + "/samples/" + "clarinet" + "/" + "D3" + ".mp3", {autoDestroy: false});
-player2.looping = true
+    // Start two overlapping looped players.
+    async function playReal() {
+	playSteppedSound(playerOne, "one", 1.0);
+	console.log("waiting", playerOne.duration/2, "ms to play two");
+	setTimeout(() => { playSteppedSound(playerTwo, "two", 1.0); },
+		   playerOne.duration / 2);
+    }
 
-async function playSoundToolkit() {
+    // Use this to stop the two players.
+    var playerID = {one: 0, two: 0};
 
-  try {
+    // We can vary this to control the volume. It will be a little
+    // rough given the fading in and out, but should work.
+    var playerVol = 1.0;
 
-    // Seems to work best so far
-    newPlayer.play()
-    // await delay(3500)
-    // player2.play()
+    // Loop a sound so that it plays over and over. Also fades in.
+    async function playSteppedSound(player, id) {
+	console.log("playing", id, "at", playerVol, "in", player.state);
+	try {
+	    player.play();
+	    // Start playing low.
+	    player.volume = 0.125*playerVol;
 
-   }catch (e) {
-    console.log(`cannot play the sound file`, e)
-  }
-}
-async function playSecondSound() {
+	    // Arrange a series of volume increases over a second's time.
+	    setTimeout(() => { player.volume = 0.25*playerVol; }, 125);
+	    setTimeout(() => { player.volume = 0.375*playerVol;}, 250);
+	    setTimeout(() => { player.volume = 0.5*playerVol;}, 500);
+	    setTimeout(() => { player.volume = 0.625*playerVol;}, 625);
+	    setTimeout(() => { player.volume = 0.75*playerVol;}, 750);
+	    setTimeout(() => { player.volume = 0.875*playerVol;}, 875);
+	    setTimeout(() => { player.volume = playerVol;}, 1000);
 
-  try {
+	    // Save the id of the looped player, so it can be stopped
+	    // when necessary.  Also note that we stop the player at
+	    // its duration. I don't know why, but this seems to make
+	    // the restart happen without dead air.
+	    playerID[id] =
+		setTimeout(() => { player.stop();
+				   console.log("restart", id, player.duration);
+				   playSteppedSound(player, id); },
+			   player.duration);
+	} catch(e) {
+	    console.log(`cannot play the stepped sound`, e)
+	}
+    }
 
-    // Seems to work best so far
-    player2.play()
-    // await delay(3500)
-    // player2.play()
+    // Set the player volume, in all the places it should be set.
+    async function setPlayerVolume(newVolume) {
+	playerVol = newVolume;
+	playerOne.volume = newVolume;
+	playerTwo.volume = newVolume;
+    }
+    
+    async function playSoundToolkit() {
+	try {
+	    playerOne.play();
+	    console.log("playing playerOne");
+	    // Start a second sound to play, but it only plays if
+	    // playerOne lasts more than 5s.
+	    setTimeout(() => { if (playerOne.isPlaying) {
+		playerTwo.play();
+		console.log("playing playerTwo");} },
+		       5000);
+	} catch (e) {
+	    console.log(`cannot play the sound file`, e)
+	}
+    }
 
-   }catch (e) {
-    console.log(`cannot play the sound file`, e)
-  }
-}
-
-async function changeSoundToolkit() {
-
-  try {
-    // Seems to work best so far
-    newPlayer.stop()
-    player2.stop()
-    // await delay(3500)
-    // player2.play()
-
-   }catch (e) {
-    console.log(`cannot play the sound file`, e)
-  }
-}
-
-async function stopSoundToolkit() {
-
-  try {
-
-    // Seems to work best so far
-    newPlayer.stop()
-    // testPlayer.stop()
-    player2.stop()
-   }catch (e) {
-    console.log(`could not pause sound`, e)
-  }
-}
+    // When stopping, we not only have to stop the players from
+    // playing, but we also have to stop the asynchronous (setTimeout)
+    // requests to restart the players.
+    async function stopSoundToolkit() {
+	try {
+	    console.log("stopping everything, including",
+			playerID["one"], "and", playerID["two"]);
+	    playerOne.stop();
+	    playerTwo.stop();
+	    clearTimeout(playerID["one"]);
+	    clearTimeout(playerID["two"]);
+	} catch (e) {
+	    console.log(`could not pause sound`, e)
+	}
+    }
   
-  // calculating actual width and height of touch area
+    // calculating actual width and height of touch area
+    const xMax = Dimensions.get("window").width / 2 - xPadding;
+    const yMax = Dimensions.get("window").height / 6 + 125;
 
-  const xMax = Dimensions.get("window").width / 2 - xPadding;
-  const yMax = Dimensions.get("window").height / 6 + 125;
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onStartShouldSetPanResponderCapture: () => true,
-      onPanResponderGrant: (e, r) => {
-        // prevent the dot from moving out of bounds with simple ternary operators
-
-        pan.setOffset({
-          x:
-            pan.x._value > xMax
-              ? xMax
-              : pan.x._value < -xMax
-              ? -xMax
-              : pan.x._value,
-          y:
-            pan.y._value > yMax
-              ? yMax
-              : pan.y._value < -yMax
-              ? -yMax
-              : pan.y._value,
-        });
-      },
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
+    const panResponder = useRef(
+	PanResponder.create({
+	    onMoveShouldSetPanResponder: () => true,
+	    onStartShouldSetPanResponderCapture: () => true,
+	    onPanResponderGrant: (e, r) => {
+		// prevent the dot from moving out of bounds
+		pan.setOffset({
+		    x: pan.x._value > xMax
+			? xMax
+			: pan.x._value < -xMax
+			? -xMax
+			: pan.x._value,
+		    y: pan.y._value > yMax
+			? yMax
+			: pan.y._value < -yMax
+			? -yMax
+			: pan.y._value,
+		});
+	    },
+	    onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
       
-        useNativeDriver: false,
+		useNativeDriver: false,
+		onPanResponderRelease: (event, gestureState) => {
+		    //After the change in the location
+		},
+	    }),
+	    onPanResponderRelease: (e, r) => {
+		pan.flattenOffset();
+		setCurrentY(pan.y._value);
+		setCurrentX(pan.x._value);
+	    },
+	})
+    ).current;
 
-        onPanResponderRelease: (event, gestureState) => {
-          //After the change in the location
+    // update current x and y values in the state for later
+    pan.x.addListener(({ value }) => { setCurrentX(value); });
+    pan.y.addListener(({ value }) => { setCurrentY(value); });
 
+    const handleX = (delta) => {
+	var newX =
+	    currentX + delta > xMax
+            ? xMax
+            : currentX + delta < -xMax
+            ? -xMax
+            : currentX + delta;
+	pan.setValue({ x: newX, y: currentY });
+    };
+    const handleY = (delta) => {
+	var newY =
+	    currentY + delta > yMax
+            ? yMax
+            : currentY + delta < -yMax
+            ? -yMax
+            : currentY + delta;
+	pan.setValue({ x: currentX, y: newY });
+    };
 
-        },
+    const [modalVisible, setModalVisible] = useState(false);
 
-
-      }),
-
-     
-      onPanResponderRelease: (e, r) => {
-        pan.flattenOffset();
-        setCurrentY(pan.y._value);
-        setCurrentX(pan.x._value);
-      },
-    })
-  ).current;
-
-  // update current x and y values in the state for later
-  pan.x.addListener(({ value }) => {
-    setCurrentX(value);
-  });
-  pan.y.addListener(({ value }) => {
-    setCurrentY(value);
-  });
-  const handleX = (delta) => {
-    var newX =
-      currentX + delta > xMax
-        ? xMax
-        : currentX + delta < -xMax
-        ? -xMax
-        : currentX + delta;
-    pan.setValue({ x: newX, y: currentY });
-  };
-  const handleY = (delta) => {
-    var newY =
-      currentY + delta > yMax
-        ? yMax
-        : currentY + delta < -yMax
-        ? -yMax
-        : currentY + delta;
-    pan.setValue({ x: currentX, y: newY });
-  };
-
-
-
-
-  const [modalVisible, setModalVisible] = useState(false);
-
-  return (
-    <View style={styles.container}>
-      <Modal
+    return (
+	    <View style={styles.container}>
+	    <Modal
         animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
+	    playerOne.destroy();
+            Alert.alert("Modal has been closed.");
+            setModalVisible(!modalVisible);
         }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+	    >
+            <View style={styles.centeredView}>
+            <View style={styles.modalView}>
             <Text style={styles.modalText}>
-              {image.title}: {"\n"}
-              {image.description}
-            </Text>
+            {image.title}: {"\n"}
+        {image.description}
+        </Text>
             <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}
+        style={[styles.button, styles.buttonClose]}
+        onPress={() => setModalVisible(!modalVisible)}
             >
-              <Text style={styles.textStyle}>CLOSE</Text>
+            <Text style={styles.textStyle}>CLOSE</Text>
             </Pressable>
-          </View>
-        </View>
-      </Modal>
-      <View style={styles.container}>
-        {/* Preventing the dot from going out of bounds       */}
-        <Animated.View
-          style={{
+            </View>
+            </View>
+	    </Modal>
+	    <View style={styles.container}>
+            {/* Preventing the dot from going out of bounds       */}
+            <Animated.View
+        style={{
             transform: [
-              {
-                translateX: pan.x.interpolate({
-                  inputRange: [-xMax, xMax],
-                  outputRange: [-xMax, xMax],
-                  extrapolate: "clamp",
-                }),
-              },
-              {
-                translateY: pan.y.interpolate({
-                  inputRange: [-yMax, yMax],
-                  outputRange: [-yMax, yMax],
-                  extrapolate: "clamp",
-                }),
-              },
+		{
+                    translateX: pan.x.interpolate({
+			inputRange: [-xMax, xMax],
+			outputRange: [-xMax, xMax],
+			extrapolate: "clamp",
+                    }),
+		},
+		{
+                    translateY: pan.y.interpolate({
+			inputRange: [-yMax, yMax],
+			outputRange: [-yMax, yMax],
+			extrapolate: "clamp",
+                    }),
+		},
             ],
-          }}
-          {...panResponder.panHandlers}
-        >
-          <View style={styles.circle} />
-        </Animated.View>
-        <View
-          style={styles.imageContainer}
-          onStartShouldSetResponder={() => true}
-          onResponderMove={(event) => {        
-            //console.log('hi');  
+        }}
+        {...panResponder.panHandlers}
+            >
+            <View style={styles.circle} />
+            </Animated.View>
+            <View
+        style={styles.imageContainer}
+        onStartShouldSetResponder={() => true}
+        onResponderMove={(event) => {        
             pan.setValue({
-              x: event.nativeEvent.locationX - xMax - 20,
-              y: event.nativeEvent.locationY - yMax - 20,
+		x: event.nativeEvent.locationX - xMax - 20,
+		y: event.nativeEvent.locationY - yMax - 20,
             });
-            console.log(event.nativeEvent.pageX, event.nativeEvent.pageY, event.nativeEvent.locationX, event.nativeEvent.locationY, yMax, xMax,  );
+
+	    setPlayerVolume(event.nativeEvent.locationX / 150);
+	    
+
             /*
 
             Where the actual motion is taking place
 
             */
            //playSoundToolkit()
-
-            
         }}
  
         
-        >
-          <ImageBackground
-            style={styles.tinyLogo}
-            source={{ uri: image.src }}
-          ></ImageBackground>
-        </View>
-      </View>
+            >
+            <ImageBackground
+        style={styles.tinyLogo}
+        source={{ uri: image.src }}
+            ></ImageBackground>
+            </View>
+	    </View>
 
 
       {<View style={styles.toolBar}>
@@ -300,108 +320,105 @@ async function stopSoundToolkit() {
       <View>
         <Button onPress={stopSoundToolkit}>Stop Sound</Button>
       </View> */}
-      <Button onPress={playSoundToolkit} >Play Sound</Button>
-      <Button onPress={playSecondSound} >Play Sound 2</Button>          
+       <Button onPress={playReal} >Play Sound</Button>
+      <Button onPress={playSoundToolkit} >Play other Sound</Button>
       <Button onPress={stopSoundToolkit} >Stop Sound</Button>
-
-
-      
-      </View> }
-    </View>
-  );
+       </View> }
+	</View>
+    );
 }
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  titleText: {
-    fontSize: 14,
-    lineHeight: 24,
-    fontWeight: "bold",
-  },
-  circle: {
-    height: 40,
-    width: 40,
-    backgroundColor: "blue",
-    borderRadius: 50,
-  },
-  imageContainer: {
-    width: Dimensions.get("window").width - 50,
-    height: Dimensions.get("window").height / 1.3,
-    backgroundColor: "#000",
-    margin: 0,
-    zIndex: -1,
-    elevation: -1,
-    position: "absolute",
-  },
-  tinyLogo: {
-    flex: 1,
-    width: null,
-    height: null,
-    margin: 0,
-    maxHeight: "100%",
-    maxWidth: "100%",
-  },
-  absolute: {
-    position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  toolBar: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    width: 350,
-    paddingBottom: 30,
-  },
-
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
+    container: {
+	flex: 1,
+	alignItems: "center",
+	justifyContent: "center",
     },
-    shadowOpacity: 2.5,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  button: {
-    padding: 5,
-    elevation: 2,
-    marginTop: 0,
-  },
-  buttonClose: {
-    backgroundColor: "black",
-    backgroundColor: "rgba(11, 127, 171, 0.7)",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
+    titleText: {
+	fontSize: 14,
+	lineHeight: 24,
+	fontWeight: "bold",
     },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-  },
+    circle: {
+	height: 40,
+	width: 40,
+	backgroundColor: "red",
+	borderRadius: 40,
+    },
+    imageContainer: {
+	width: Dimensions.get("window").width - 50,
+	height: Dimensions.get("window").height / 1.3,
+	backgroundColor: "#000",
+	margin: 0,
+	zIndex: -1,
+	elevation: -1,
+	position: "absolute",
+    },
+    tinyLogo: {
+	flex: 1,
+	width: null,
+	height: null,
+	margin: 0,
+	maxHeight: "100%",
+	maxWidth: "100%",
+    },
+    absolute: {
+	position: "absolute",
+	alignItems: "center",
+	justifyContent: "center",
+    },
+
+    toolBar: {
+	flexDirection: "row",
+	justifyContent: "space-evenly",
+	width: 350,
+	paddingBottom: 30,
+    },
+
+    modalView: {
+	margin: 20,
+	backgroundColor: "white",
+	padding: 35,
+	alignItems: "center",
+	shadowColor: "#000",
+	shadowOffset: {
+	    width: 0,
+	    height: 2,
+	},
+	shadowOpacity: 2.5,
+	shadowRadius: 10,
+	elevation: 10,
+    },
+    button: {
+	padding: 5,
+	elevation: 2,
+	marginTop: 0,
+    },
+    buttonClose: {
+	backgroundColor: "black",
+	backgroundColor: "rgba(11, 127, 171, 0.7)",
+	shadowColor: "#000",
+	shadowOffset: {
+	    width: 0,
+	    height: 2,
+	},
+	shadowOpacity: 0.5,
+	shadowRadius: 5,
+    },
+    textStyle: {
+	color: "white",
+	fontWeight: "bold",
+	textAlign: "center",
+    },
+    modalText: {
+	marginBottom: 15,
+	textAlign: "center",
+    },
+    centeredView: {
+	flex: 1,
+	justifyContent: "center",
+	alignItems: "center",
+	backgroundColor: "rgba(0, 0, 0, 0.6)",
+    },
 });
