@@ -11,13 +11,10 @@ import {
     Pressable,
 } from "react-native";
 
-
-
 import { Dimensions } from "react-native";
 //import { AntDesign } from "@expo/vector-icons";
 import { Button } from "@rneui/base";
-import {Player} from '@react-native-community/audio-toolkit';
-//import SoundPlayer from 'react-native-sound-player'
+import { Player } from '@react-native-community/audio-toolkit';
 
 export default function SoundPage({ route, navigation }) {
     const { image, name } = route.params;
@@ -29,79 +26,88 @@ export default function SoundPage({ route, navigation }) {
 
     const xPadding = 45;
 
-
-    function delay(milliseconds){
-	return new Promise(resolve => {
-            setTimeout(resolve, milliseconds);
-	});
-    }
-
-    // The looping is inadequate because it leaves an air gap, so we
-    // set looping to false and do our own looping.
+    // The native looping in the audio toolkit is inadequate because
+    // it leaves a dead air gap, so we set looping to false and do our
+    // own looping.
     const playerOne =
 	  new Player("https://stellasonos-files.vercel.app/samples/bassoon/G1.mp3",
 		     {autoDestroy: false,
-		      mixWithOthers: true});
-    playerOne.looping = false;
-    // Get the player ready to play.
-    playerOne.prepare();
+		      mixWithOthers: true}).prepare((err) => {
+			  if (err) {
+			      console.log("error 1:");
+			      console.log(err);
+			  } else {
+			      playerOne.looping = false;
+			  }
+		      });
 
     // Same as above for the second player.
     const playerTwo =
 	  new Player("https://stellasonos-files.vercel.app/samples/bassoon/G1.mp3",
 		     {autoDestroy: false,
-		      mixWithOthers: true});
-    playerTwo.looping = false;
-    playerTwo.prepare();
-
+		      mixWithOthers: true}).prepare((err) => {
+			  if (err) {
+			      console.log("error 2:");
+			      console.log(err);
+			  } else {
+			      playerTwo.looping = false;
+			  }
+		      });
+			  
     // Start two overlapping looped players.
     async function playReal() {
 	playSteppedSound(playerOne, "one", 1.0);
 	console.log("waiting", playerOne.duration/2, "ms to play two");
-	setTimeout(() => { playSteppedSound(playerTwo, "two", 1.0); },
-		   playerOne.duration / 2);
+	playerID["two"] =
+	    setTimeout(() => { playSteppedSound(playerTwo, "two", 1.0); },
+		       playerOne.duration / 2);
     }
 
     // Use this to stop the two players.
     var playerID = {one: 0, two: 0};
 
     // We can vary this to control the volume. It will be a little
-    // rough given the fading in and out, but should work.
+    // rough given the fading in and out, but could work.
     var playerVol = 1.0;
 
     // Loop a sound so that it plays over and over. Also fades in.
     async function playSteppedSound(player, id) {
-	console.log("playing", id, "at", playerVol, "in", player.state);
-	try {
-	    player.play();
-	    // Start playing low.
-	    player.volume = 0.125*playerVol;
 
-	    // Arrange a series of volume increases over a second's time.
-	    setTimeout(() => { player.volume = 0.25*playerVol; }, 125);
-	    setTimeout(() => { player.volume = 0.375*playerVol;}, 250);
-	    setTimeout(() => { player.volume = 0.5*playerVol;}, 500);
-	    setTimeout(() => { player.volume = 0.625*playerVol;}, 625);
-	    setTimeout(() => { player.volume = 0.75*playerVol;}, 750);
-	    setTimeout(() => { player.volume = 0.875*playerVol;}, 875);
-	    setTimeout(() => { player.volume = playerVol;}, 1000);
+	player.play((err) => {
+	    if (err) {
+		console.log("error playing:", id, "volume", playerVol,
+			    "state", player.state);
+		console.log(err);
+	    } else {
+		console.log("playing", id, "volume", playerVol,
+			    "state", player.state);
+	    }});
+	// Start playing low.
+	player.volume = 0.125*playerVol;
 
-	    // Save the id of the looped player, so it can be stopped
-	    // when necessary.  Also note that we stop the player at
-	    // its duration. I don't know why, but this seems to make
-	    // the restart happen without dead air.
-	    playerID[id] =
-		setTimeout(() => { player.stop();
-				   console.log("restart", id, player.duration);
-				   playSteppedSound(player, id); },
-			   player.duration);
-	} catch(e) {
-	    console.log(`cannot play the stepped sound`, e)
-	}
+	// Arrange a series of volume increases over a second's time.
+	setTimeout(() => { player.volume = 0.25*playerVol; }, 125);
+	setTimeout(() => { player.volume = 0.375*playerVol;}, 250);
+	setTimeout(() => { player.volume = 0.5*playerVol;}, 500);
+	setTimeout(() => { player.volume = 0.625*playerVol;}, 625);
+	setTimeout(() => { player.volume = 0.75*playerVol;}, 750);
+	setTimeout(() => { player.volume = 0.875*playerVol;}, 875);
+	setTimeout(() => { player.volume = playerVol;}, 1000);
+
+	// Save the id of the looped player, so it can be stopped
+	// when necessary.  Also note that we stop the player at
+	// its duration. I don't know why, but this seems to make
+	// the restart happen without dead air.
+	playerID[id] =
+	    setTimeout(() => { player.stop();
+			       console.log("restart", id, player.duration);
+			       playSteppedSound(player, id); },
+		       player.duration);
     }
 
     // Set the player volume, in all the places it should be set.
     async function setPlayerVolume(newVolume) {
+	console.log("set volume to", newVolume);
 	playerVol = newVolume;
 	playerOne.volume = newVolume;
 	playerTwo.volume = newVolume;
@@ -126,16 +132,14 @@ export default function SoundPage({ route, navigation }) {
     // playing, but we also have to stop the asynchronous (setTimeout)
     // requests to restart the players.
     async function stopSoundToolkit() {
-	try {
-	    console.log("stopping everything, including",
-			playerID["one"], "and", playerID["two"]);
-	    playerOne.stop();
-	    playerTwo.stop();
-	    clearTimeout(playerID["one"]);
-	    clearTimeout(playerID["two"]);
-	} catch (e) {
-	    console.log(`could not pause sound`, e)
-	}
+	console.log("stopping everything, including",
+		    playerID["one"], "and", playerID["two"]);
+	playerOne.stop();
+	playerTwo.stop();
+	clearTimeout(playerID["one"]);
+	playerID["one"] = 0;
+	clearTimeout(playerID["two"]);
+	playerID["two"] = 0;
     }
   
     // calculating actual width and height of touch area
