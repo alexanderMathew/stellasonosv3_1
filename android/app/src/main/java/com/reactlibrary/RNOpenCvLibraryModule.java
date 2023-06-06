@@ -1,9 +1,11 @@
 package com.reactlibrary;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.WritableArray;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,9 +13,16 @@ import android.graphics.BitmapFactory;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.android.Utils;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import android.util.Base64;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
 
@@ -38,12 +47,56 @@ public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
 
             byte[] decodedString = Base64.decode(imageAsBase64, Base64.DEFAULT);
             Bitmap image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            // Ignore resizing?
 
+            // Get mat data
+            Mat src = new Mat();
+            Utils.bitmapToMat(image, src);
+            int[] srcData = getMatData(src);
 
-            successCallback.invoke("Something");
+            // Image segmentation
+            Mat dst = Mat.zeros(src.rows(), src.cols(), CvType.CV_8UC3);
+
+            // Apply thresholding on src image to differentiate fore vs. background
+            Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY, 0);
+            int threshold = 40;     // Arbitrary, taken from Constants.SEGMENTATION_THRESHOLD_DICT[imageType]
+            Imgproc.threshold(src, src, threshold, 255, Imgproc.THRESH_BINARY);
+
+            List<MatOfPoint> contours = new ArrayList<>();
+            Mat hierarchy = new Mat();
+            Imgproc.findContours(src, contours, hierarchy, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+
+            // Draw contours with random Scalar
+            Random random = new Random();
+            for (int i = 0; i < contours.size(); ++i) {
+                Scalar color = new Scalar(
+                    random.nextInt(255),
+                    random.nextInt(255),
+                    random.nextInt(255)
+                );
+                Imgproc.drawContours(dst, contours, i, color, -1, Imgproc.LINE_8, hierarchy, 100);
+            }
+            int[] dstData = getMatData(dst);
+
+            WritableArray srcArray = Arguments.fromArray(srcData);
+            WritableArray dstArray = Arguments.fromArray(dstData);
+            WritableArray result = Arguments.createArray();
+            result.pushArray(srcArray);
+            result.pushArray(dstArray);
+
+            successCallback.invoke(result);
         } catch (Exception e) {
             errorCallback.invoke(e.getMessage());
         }
+    }
+
+    public int[] getMatData(Mat mat) {
+        int size = (int) mat.total() * mat.channels();
+        int[] data = new int[size];
+        // TODO: Wounded code -- Mat data type is not compatible: 24
+        Log.d("ReactNative", mat.toString());
+        mat.get(0, 0, data);
+        return data;
     }
 
     // Just an example

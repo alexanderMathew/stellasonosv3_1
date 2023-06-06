@@ -1,6 +1,7 @@
 import { Constants } from "../data_processing/Constants";
 import ImageSegmentation from "../data_processing/ImageSegmentation";
 import { Dimensions, Image } from "react-native";
+import RNFetchBlob from "rn-fetch-blob";
 
 /** 
  * Models one layer of image for the main sound image.
@@ -80,31 +81,50 @@ export default class SoundImageLayer {
     // console.assert(objectColorIdArray.length * 4 === bgrDataArray.length);
     // console.assert(objectColorIdArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
 
+    let imagePath = null;
+    RNFetchBlob.config({fileCache: true})
+      .fetch("GET", this.image.src)
+      .then(resp => {
+        imagePath = resp.path();
+        return resp.readFile("base64");
+      })
+      .then(imageAsBase64 => {
+        console.log("Begin segmentation")
+        const imageSegmentor = new ImageSegmentation();
+        let [objectFeatureMap, objectColorIdArray] = imageSegmentor.segmentNew(imageAsBase64);
+      });
+
     // For each pixel, create an image feature object.
     // This object contains the rgba values of the original pixel,
     // as well as image segmentation info such as object id number
-    // // and the average pixel value of this object.
-    // let objectArrayIndex = 0;
-    // for (let i = 0; i < bgrDataArray.length; i += 4) {
-    //   let currentPixelFeature = {};
-    //   const currentObjectId = objectColorIdArray[objectArrayIndex];
-    //   currentPixelFeature[Constants.NAME_BLUE] = bgrDataArray[i];
-    //   currentPixelFeature[Constants.NAME_GREEN] = bgrDataArray[i + 1];
-    //   currentPixelFeature[Constants.NAME_RED] = bgrDataArray[i + 2];
-    //   currentPixelFeature[Constants.NAME_ALPHA] = bgrDataArray[i + 3];
-    //   currentPixelFeature[Constants.NAME_OBJECT_ID] = currentObjectId;
-    //   objectArrayIndex += 1;
-    //   this.imageFeatureArray.push(currentPixelFeature);
-    // }
-    // console.assert(objectArrayIndex === objectColorIdArray.length);
-    // console.assert(this.imageFeatureArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
+    // and the average pixel value of this object.
+    let objectArrayIndex = 0;
+    for (let i = 0; i < bgrDataArray.length; i += 4) {
+      let currentPixelFeature = {};
+      const currentObjectId = objectColorIdArray[objectArrayIndex];
+      currentPixelFeature[Constants.NAME_BLUE] = bgrDataArray[i];
+      currentPixelFeature[Constants.NAME_GREEN] = bgrDataArray[i + 1];
+      currentPixelFeature[Constants.NAME_RED] = bgrDataArray[i + 2];
+      currentPixelFeature[Constants.NAME_ALPHA] = bgrDataArray[i + 3];
+      currentPixelFeature[Constants.NAME_OBJECT_ID] = currentObjectId;
+      objectArrayIndex += 1;
+      this.imageFeatureArray.push(currentPixelFeature);
+    }
+    console.assert(objectArrayIndex === objectColorIdArray.length);
+    console.assert(this.imageFeatureArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
+  };
 
-    // When the main layer gets loaded, change the overlay button's text,
-    // and let screen reader read the initial instruction.
-    // if (this.isCompositeLayer()) {
-      // document.getElementById("start-audio-context-button").innerHTML = "Start Exploring";
-      // document.getElementById("start-audio-instruction").hidden = false;
-    // }
+  downloadImageAsBase64 = async (url) => {
+    let imagePath = null;
+    RNFetchBlob.config({fileCache: true})
+      .fetch("GET", url)
+      .then(resp => {
+        imagePath = resp.path();
+        return resp.readFile("base64");
+      })
+      .then(base64Data => {
+        return base64Data;
+      });
   };
 
   /*
