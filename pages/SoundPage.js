@@ -130,7 +130,7 @@ export default function SoundPage({ route, navigation }) {
 
     // When stopping, we not only have to stop the players from
     // playing, but we also have to stop the asynchronous (setTimeout)
-    // requests to restart the players.
+    // requests that might be lurking to restart the players.
     async function stopSoundToolkit() {
 	console.log("stopping everything, including",
 		    playerID["one"], "and", playerID["two"]);
@@ -325,8 +325,8 @@ export default function SoundPage({ route, navigation }) {
         <Button onPress={stopSoundToolkit}>Stop Sound</Button>
       </View> */}
        <Button onPress={playReal} >Play Sound</Button>
-      <Button onPress={playSoundToolkit} >Play other Sound</Button>
-      <Button onPress={stopSoundToolkit} >Stop Sound</Button>
+       <Button onPress={playSoundToolkit} >Play other Sound</Button>
+       <Button onPress={stopSoundToolkit} >Stop Sound</Button>
        </View> }
 	</View>
     );
