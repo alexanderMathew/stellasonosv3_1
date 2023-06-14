@@ -40,22 +40,30 @@ public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void segmentImage(String imageAsBase64, Callback errorCallback, Callback successCallback) {
+	Log.d("ReactNative-->", "Starting segmentImage");
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inDither = true;
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
+	    Log.d("ReactNative-->", "About to call decode");
             byte[] decodedString = Base64.decode(imageAsBase64, Base64.DEFAULT);
+	    Log.d("ReactNative-->", "About to call decodeByteArray");
             Bitmap image = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             // Ignore resizing?
 
             // Get mat data
             Mat src = new Mat();
+	    Log.d("ReactNative-->", "About to call bitmapToMat");
             Utils.bitmapToMat(image, src);
+            Log.d("ReactNative-->mat", src.toString());
+	    Log.d("ReactNative-->", "About to call getMatData");
             int[] srcData = getMatData(src);
-
+	    Log.d("ReactNative-->", "Finished calling getMatData");
+	    //Log.d("ReactNative-->", srcData.toString());
+	    
             // Image segmentation
-            Mat dst = Mat.zeros(src.rows(), src.cols(), CvType.CV_8UC3);
+            Mat dst = Mat.zeros(src.rows(), src.cols(), CvType.CV_8UC4);
 
             // Apply thresholding on src image to differentiate fore vs. background
             Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY, 0);
@@ -92,9 +100,11 @@ public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
 
     public int[] getMatData(Mat mat) {
         int size = (int) mat.total() * mat.channels();
+        Log.d("ReactNative-->total()", String.valueOf(mat.total()));
+        Log.d("ReactNative-->channels()", String.valueOf(mat.channels()));
         int[] data = new int[size];
         // TODO: Wounded code -- Mat data type is not compatible: 24
-        Log.d("ReactNative", mat.toString());
+        Log.d("ReactNative-->", mat.toString());
         mat.get(0, 0, data);
         return data;
     }

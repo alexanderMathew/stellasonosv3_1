@@ -1,7 +1,7 @@
 import { Constants } from "../data_processing/Constants";
 import ImageSegmentation from "../data_processing/ImageSegmentation";
 import { Dimensions, Image } from "react-native";
-import RNFetchBlob from "rn-fetch-blob";
+import RNFetchBlob from 'react-native-blob-util';
 
 /** 
  * Models one layer of image for the main sound image.
@@ -81,19 +81,27 @@ export default class SoundImageLayer {
     // console.assert(objectColorIdArray.length * 4 === bgrDataArray.length);
     // console.assert(objectColorIdArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
 
-    let imagePath = null;
-    RNFetchBlob.config({fileCache: true})
-      .fetch("GET", this.image.src)
-      .then(resp => {
-        imagePath = resp.path();
-        return resp.readFile("base64");
-      })
-      .then(imageAsBase64 => {
-        console.log("Begin segmentation")
-        const imageSegmentor = new ImageSegmentation();
-        let [objectFeatureMap, objectColorIdArray] = imageSegmentor.segmentNew(imageAsBase64);
+      console.log("Looking for:", this.image.src);
+      await RNFetchBlob.fetch('GET', this.image.src)
+	  .then(imageAsBase64 => {
+              console.log("Begin segmentation:", imageAsBase64)
+              console.log("Segmentation data:", imageAsBase64.info())
+              const imageSegmentor = new ImageSegmentation();
+              // let [objectFeatureMap, objectColorIdArray] =
+	      // 	  imageSegmentor.segmentNew(imageAsBase64.data);
       });
+      
+      
+    // let imagePath = null;
+    // RNFetchBlob.config({fileCache: true})
+    //   .fetch("GET", this.image.src)
+    //   .then(imageAsBase64 => {
+    //     console.log("Begin segmentation")
+    //     const imageSegmentor = new ImageSegmentation();
+    //     let [objectFeatureMap, objectColorIdArray] = imageSegmentor.segmentNew(imageAsBase64);
+    //   });
 
+      
     // For each pixel, create an image feature object.
     // This object contains the rgba values of the original pixel,
     // as well as image segmentation info such as object id number
