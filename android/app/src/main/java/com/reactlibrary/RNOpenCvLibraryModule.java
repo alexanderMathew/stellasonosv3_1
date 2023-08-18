@@ -1,9 +1,11 @@
 package com.reactlibrary;
 
-import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.WritableArray;
 
@@ -24,6 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+// This is for making the cast from byte array to int.
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
@@ -42,9 +48,9 @@ public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
     public void segmentImage(String imageAsBase64, Callback errorCallback, Callback successCallback) {
 	Log.d("ReactNative-->", "Starting segmentImage");
         try {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inDither = true;
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            //BitmapFactory.Options options = new BitmapFactory.Options();
+            //options.inDither = true;
+            //options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
 	    Log.d("ReactNative-->", "About to call decode");
             byte[] decodedString = Base64.decode(imageAsBase64, Base64.DEFAULT);
@@ -54,20 +60,23 @@ public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
 
             // Get mat data
             Mat src = new Mat();
-	    Log.d("ReactNative-->", "About to call bitmapToMat");
             Utils.bitmapToMat(image, src);
-            Log.d("ReactNative-->mat", src.toString());
-	    Log.d("ReactNative-->", "About to call getMatData");
-            int[] srcData = getMatData(src);
-	    Log.d("ReactNative-->", "Finished calling getMatData");
-	    //Log.d("ReactNative-->", srcData.toString());
+	    // get byte data and cast it to int.
+	    IntBuffer intBuf = ByteBuffer.wrap(getMatData(src)).asIntBuffer();
+	    int[] srcData = new int[intBuf.remaining()];
+	    intBuf.get(srcData);
+	    // byte[] srcData = getMatData(src);
+
+	    Log.d("got srcData", srcData.toString());
 	    
             // Image segmentation
             Mat dst = Mat.zeros(src.rows(), src.cols(), CvType.CV_8UC4);
 
             // Apply thresholding on src image to differentiate fore vs. background
             Imgproc.cvtColor(src, src, Imgproc.COLOR_RGBA2GRAY, 0);
-            int threshold = 40;     // Arbitrary, taken from Constants.SEGMENTATION_THRESHOLD_DICT[imageType]
+	    // Arbitrary, taken from
+	    // Constants.SEGMENTATION_THRESHOLD_DICT[imageType]
+            int threshold = 40;     
             Imgproc.threshold(src, src, threshold, 255, Imgproc.THRESH_BINARY);
 
             List<MatOfPoint> contours = new ArrayList<>();
@@ -84,28 +93,43 @@ public class RNOpenCvLibraryModule extends ReactContextBaseJavaModule {
                 );
                 Imgproc.drawContours(dst, contours, i, color, -1, Imgproc.LINE_8, hierarchy, 100);
             }
-            int[] dstData = getMatData(dst);
 
-            WritableArray srcArray = Arguments.fromArray(srcData);
+	    // get byte data and cast it to int.
+	    intBuf = ByteBuffer.wrap(getMatData(dst)).asIntBuffer();
+	    int[] dstData = new int[intBuf.remaining()];
+	    intBuf.get(dstData);
+	    //byte[] dstData = getMatData(dst);
+	    Log.d("ReactNative-->got dstData", dstData.toString());
+
+	    // We do the cast above because the fromArray function
+	    // below only wants int.
+	    WritableArray srcArray = Arguments.fromArray(srcData);
             WritableArray dstArray = Arguments.fromArray(dstData);
             WritableArray result = Arguments.createArray();
+	    Log.d("ReactNative-->converted everyone to arrays", result.toString());
+	    
             result.pushArray(srcArray);
             result.pushArray(dstArray);
 
+	    Log.d("ReactNative-->pushes successful", result.toString());
+	    
             successCallback.invoke(result);
         } catch (Exception e) {
             errorCallback.invoke(e.getMessage());
         }
     }
 
-    public int[] getMatData(Mat mat) {
+    public byte[] getMatData(Mat mat) {
         int size = (int) mat.total() * mat.channels();
         Log.d("ReactNative-->total()", String.valueOf(mat.total()));
         Log.d("ReactNative-->channels()", String.valueOf(mat.channels()));
-        int[] data = new int[size];
-        // TODO: Wounded code -- Mat data type is not compatible: 24
-        Log.d("ReactNative-->", mat.toString());
-        mat.get(0, 0, data);
+        Log.d("ReactNative-->cols()", String.valueOf(mat.cols()));
+        Log.d("ReactNative-->rows()", String.valueOf(mat.rows()));
+        byte[] data = new byte[size];
+
+	Log.d("ReactNative-->data(pre)", data.toString());
+        mat.get(mat.rows(), mat.cols(), data);
+	Log.d("ReactNative-->data(post)", data.toString());
         return data;
     }
 

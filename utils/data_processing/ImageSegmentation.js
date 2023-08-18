@@ -13,13 +13,14 @@ import OpenCV from '../NativeModules/OpenCV';
  */
 class ImageSegmentation {
   constructor() {
-    this.state = {
-      cv: null,
-      openCVLib : new OpenCVLib(),
-      loaded: false,
-      imageRenderedHeight : 0, 
-      imageRenderedWidth : 0
-    };
+      this.state = {
+	  cv: null,
+	  openCVLib : new OpenCVLib(),
+	  loaded: false,
+	  imageRenderedHeight : 0, 
+	  imageRenderedWidth : 0
+      };
+      console.log("constructing ImageSegmentation object");
   }
   
   isLoaded = () => {
@@ -30,39 +31,40 @@ class ImageSegmentation {
     return new Promise((resolve, reject) => {
       // Only for Android
 	console.log("About to call OpenCV.segmentImage", imageAsBase64);
-      // 	OpenCV.segmentImage(imageAsBase64, error => {
-      //   // error handling
-      //   console.log("Error in returning from native code: " + error);
-      //   console.log(error);
-      // }, result => {
-      //   console.log("Successful result from native code: " + result)
-      //   resolve(result);
-      // });
+	OpenCV.segmentImage(imageAsBase64, error => {
+            // error handling
+            console.log("Error in returning from native code: " + error);
+            console.log(error);
+	}, result => {
+            console.log("Successful result from native code: " + result)
+            resolve(result);
+	});
     });
   }
 
   segmentNew = (image) => {
-    this.segmentInNativeCode(image).then(result => {
-      let [srcArray, dstArray] = result;
-      const objectResults = this.findObjects(srcArray, dstArray);
-      const objectFeatureMap= objectResults[0];
-      const objectColorIdArray = objectResults[1];
-      // console.assert(objectColorIdArray.length = src.rows * src.cols);
-      // Uncomment to display this layer's segmentation result as debugging step. 
-      // if (showSegmentation && imageType !== 'composite') {
-      //   window.cv.imshow(displayId, dst);
-      // }
-      // src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
+      this.segmentInNativeCode(image).then(result => {
+	  console.log("back from segmentInNativeCode", result);
+	  let [srcArray, dstArray] = result;
+	  const objectResults = this.findObjects(srcArray, dstArray);
+	  const objectFeatureMap= objectResults[0];
+	  const objectColorIdArray = objectResults[1];
+	  // console.assert(objectColorIdArray.length = src.rows * src.cols);
+	  // Uncomment to display this layer's segmentation result as debugging step. 
+	  // if (showSegmentation && imageType !== 'composite') {
+	  //   window.cv.imshow(displayId, dst);
+	  // }
+	  // src.delete(); dst.delete(); contours.delete(); hierarchy.delete();
 
-      this.state.loaded = true; 
+	  this.state.loaded = true; 
 
-      console.log("#### objectFeatureMap ####")
-      console.log(objectFeatureMap);
-      console.log("#### objectColorIdArray ####")
-      console.log(objectColorIdArray);
+	  console.log("#### objectFeatureMap ####")
+	  console.log(objectFeatureMap);
+	  console.log("#### objectColorIdArray ####")
+	  console.log(objectColorIdArray);
       
-      return [objectFeatureMap, objectColorIdArray];
-    });
+	  return [objectFeatureMap, objectColorIdArray];
+      });
   }
 
   // Converts RGB values to a hex value string.
@@ -237,9 +239,11 @@ class ImageSegmentation {
             "a" : 0.0
           }; 
         }
-
       }
     }
+      console.log("objectColorIdArray.length=",objectColorIdArray.length);
+      console.log("this.state.imageRenderedHeight=",this.state.imageRenderedHeight);
+      console.log("this.state.imageRenderedWidth=",this.state.imageRenderedWidth);
     console.assert(objectColorIdArray.length === this.state.imageRenderedHeight * this.state.imageRenderedWidth);
     // Commented this out because this seems to be doing a similar thing as neighbor detection,
     // but we can add this back in later, eg. with a smaller expansion margin/radius.

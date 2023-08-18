@@ -42,65 +42,41 @@ export default class SoundImageLayer {
 
   /* Calls image segmentation and reconfigure the results into one image feature array. */ 
   loadHelper = async () => {
-    // this.ctx = this.canvas.getContext("2d");
-    // this.ctx.canvas.width = this.image.width;
-    // this.ctx.canvas.height = this.image.height;
-
-    // // Clear the canvas from previous layer.
-    // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // // Image dimensions and canvas dimensions are based on the image's intrinsic size here.
-    // this.ctx.drawImage(this.image, 0, 0, this.image.width, this.image.height);
-
-    // const bgrDataArray = this.getResizedImageData();
-    // Don't resize?
-    // let imreadImage = RNCv.invokeMethod('imread', {"p1": this.image.src});
-    // const bgrDataArray = imreadImage.data;
-
-    // const imagesrc = Image.resolveAssetSource(this.image.src);
-    // console.log(imagesrc);
-    // const sourceuri = Image.resolveAssetSource(this.image.src).uri;
-
-    // const sourceFile = await this.downloadAssetSource(this.image.src);
-    // const srcMat = await RNCv.imageToMat(sourceFile);
-    // let srcMat = await new Mat(864, 864, CvType.CV_8UC4).init();
-    // const srcMat = await new Mat().init()
-    // console.log(srcMat);
-    // const bgrDataArray = await RNCv.getMatData(srcMat, 0, 0);
-    // console.log("bgrDataArray length: " + bgrDataArray.length);
-
     // MISSION:
     // 1. Figure out what *Mat* is and how to use it to get the image data (bgrDataArray)
     // 2. If all else fails, find another way to get bgrDataArray from the image
     // 3. Does startImageSeg actually need bgrDataArray?
 
-    // This data array is used in segmentation, so whichever dimension is used here 
-    // needs to match the image that is used for segmentation
+    // This data array is used in segmentation, so whichever dimension
+    // is used here needs to match the image that is used for
+    // segmentation
     // let [objectFeatureMap, objectColorIdArray] = 
-    //   this.startImageSeg(bgrDataArray, this.imageRenderedWidth, this.imageRenderedHeight);
+    //    this.startImageSeg(bgrDataArray,
+    //                       this.imageRenderedWidth, this.imageRenderedHeight);
     // this.objectFeatureMap = objectFeatureMap
     // console.assert(objectColorIdArray.length * 4 === bgrDataArray.length);
     // console.assert(objectColorIdArray.length === this.imageRenderedWidth * this.imageRenderedHeight);
 
       console.log("Looking for:", this.image.src);
       await RNFetchBlob.fetch('GET', this.image.src)
-	  .then(imageAsBase64 => {
-              console.log("Begin segmentation:", imageAsBase64)
-              console.log("Segmentation data:", imageAsBase64.info())
-              const imageSegmentor = new ImageSegmentation();
-              // let [objectFeatureMap, objectColorIdArray] =
-	      // 	  imageSegmentor.segmentNew(imageAsBase64.data);
-      });
-      
-      
-    // let imagePath = null;
-    // RNFetchBlob.config({fileCache: true})
-    //   .fetch("GET", this.image.src)
-    //   .then(imageAsBase64 => {
-    //     console.log("Begin segmentation")
-    //     const imageSegmentor = new ImageSegmentation();
-    //     let [objectFeatureMap, objectColorIdArray] = imageSegmentor.segmentNew(imageAsBase64);
-    //   });
+	  .then((imageAsBase64) => {
+	      let status = imageAsBase64.info().status;
 
+	      if (status == 200) {
+		  console.log("Begin segmentation...", status)
+		  console.log("ImageAsBase64", imageAsBase64);
+		  console.log("Segmentation data:", imageAsBase64.array())
+		  const imageSegmentor = new ImageSegmentation();
+		  console.log("Back from constructor, going to imageSegmentor");
+		  let [objectFeatureMap, objectColorIdArray] =
+		   	  imageSegmentor.segmentNew(imageAsBase64.data);
+	      } else {
+		  console.log("Something is wrong, but not too wrong.");
+	      }
+	  })
+	  .catch((errorMessage, statusCode) => {
+	      console.log(errorMessage, "status:", statusCode);
+	  });      
       
     // For each pixel, create an image feature object.
     // This object contains the rgba values of the original pixel,
